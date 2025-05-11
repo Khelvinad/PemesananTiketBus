@@ -1,6 +1,6 @@
 
 
-public class TarifBus extends Bus {
+public class TarifBus extends Trayek {
     public  TarifBus(){
         inisialisasiTarif();
     }

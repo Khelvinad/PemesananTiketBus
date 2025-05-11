@@ -3,8 +3,11 @@ import javax.swing.*;
 
 public class Frame extends JFrame {
 
-    private JButton[] kursi = new JButton[36];
+    private JButton[] seatA = new JButton[18];
+    private JButton[] seatB = new JButton[22];
+    private JButton driver, conductor, toilet;
     private ImageIcon seatIcon;
+    private ImageIcon chosenIcon;
     private ImageIcon takenIcon;
 
     public Frame() {
@@ -24,6 +27,10 @@ public class Frame extends JFrame {
         Image scaledImage = rawIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
         seatIcon = new ImageIcon(scaledImage);
 
+        ImageIcon rawChosen = new ImageIcon(getClass().getResource("Resource/ChosenSeat.png"));
+        Image scaledChosen = rawChosen.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+        chosenIcon = new ImageIcon(scaledChosen);
+
         ImageIcon rawTaken = new ImageIcon(getClass().getResource("Resource/TakenSeat.png"));
         Image scaledTaken = rawTaken.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
         takenIcon = new ImageIcon(scaledTaken);
@@ -31,62 +38,101 @@ public class Frame extends JFrame {
 
     private void UIbus() {
         JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setPreferredSize(new Dimension(350, 650));
+        mainPanel.setLayout(new BorderLayout(5, 5));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JPanel Upanel = new JPanel();
-        JPanel Fpanel = new JPanel();
-        JPanel Rpanel = new JPanel();
-        JPanel Lpanel = new JPanel();
+        JPanel Upanel = new JPanel(new BorderLayout());
+        Upanel.setPreferredSize(new Dimension(230, 70));
+        JPanel topLeftPanel = new JPanel(new BorderLayout());
+        topLeftPanel.setPreferredSize(new Dimension(150, 60));
+        topLeftPanel.setOpaque(false);
 
-        mainPanel.setPreferredSize(new Dimension(250, 650));
+        JLabel pintuDepan = new JLabel("PINTU DEPAN", SwingConstants.CENTER);
+        pintuDepan.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        pintuDepan.setPreferredSize(new Dimension(150, 30));
+        topLeftPanel.add(pintuDepan, BorderLayout.NORTH);
+        
+        conductor = new JButton("KONDEKTUR");
+        conductor.setPreferredSize(new Dimension(150, 30));
+        topLeftPanel.add(conductor, BorderLayout.SOUTH);
+        conductor.setContentAreaFilled(false);
+        conductor.setFocusPainted(false);
+        
+        JPanel topRightPanel = new JPanel(new BorderLayout());
+        driver = new JButton("DRIVER");
+        driver.setPreferredSize(new Dimension(80, 80));
+        topRightPanel.add(driver, BorderLayout.EAST);
+        driver.setContentAreaFilled(false);
+        driver.setFocusPainted(false);
+        
+        Upanel.add(topLeftPanel, BorderLayout.WEST);
+        Upanel.add(topRightPanel, BorderLayout.EAST);
 
-        mainPanel.setBackground(Color.gray);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 20));
-        // Upanel.setBackground(Color.RED);
-        Fpanel.setBackground(Color.RED);
-        // Rpanel.setBackground(Color.RED);
-        Lpanel.setBackground(Color.GREEN);
+        JPanel Lpanel = new JPanel(new GridLayout(9, 2,5 , 5));
+        Lpanel.setPreferredSize(new Dimension(115, 500));
+        for (int i = 1; i <= 18; i++) {
+            seatA[i-1] = SeatButton("A" + i);
+            Lpanel.add(seatA[i-1]);
+        }
+        JPanel Rpanel = new JPanel(new GridLayout(9, 2, 5, 5));
+        Rpanel.setPreferredSize(new Dimension(115, 500));
+        for (int i = 1; i <= 18; i++) {
+            seatB[i-1] = SeatButton("B" + i);
+            Rpanel.add(seatB[i-1]);
+        }
 
-        Upanel.setPreferredSize(new Dimension(230,70));
-        Fpanel.setPreferredSize(new Dimension(10, 70));
+        JPanel Fpanel = new JPanel(new BorderLayout());
+        Fpanel.setPreferredSize(new Dimension(220, 85));
+        JPanel bottomLeftPanel = new JPanel(new BorderLayout());
+        bottomLeftPanel.setOpaque(false);
+        JLabel pintuBelakang = new JLabel("PINTU BELAKANG", SwingConstants.CENTER);
+        pintuBelakang.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        pintuBelakang.setPreferredSize(new Dimension(120, 20));
+        bottomLeftPanel.add(pintuBelakang, BorderLayout.NORTH);
+        JLabel Toilet = new JLabel("TOILET", SwingConstants.CENTER);
+        Toilet.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        Toilet.setPreferredSize(new Dimension(100, 50));
+        bottomLeftPanel.add(Toilet, BorderLayout.SOUTH);
+
+        JPanel bottomRoghtPanel = new JPanel(new GridLayout(2, 2,5,5));
+        bottomRoghtPanel.setPreferredSize(new Dimension(115, 80));
+        for (int i = 19; i <= seatB.length; i++) {
+            seatB[i-1] = SeatButton("B" + i);
+            bottomRoghtPanel.add(seatB[i-1]);
+        }
+
+        Fpanel.add(bottomLeftPanel, BorderLayout.WEST);
+        Fpanel.add(bottomRoghtPanel, BorderLayout.EAST);
+
+        mainPanel.setBackground(Color.LIGHT_GRAY);
+        Upanel.setBackground(Color.LIGHT_GRAY);
+        Fpanel.setBackground(Color.LIGHT_GRAY);
 
         mainPanel.add(Upanel, BorderLayout.NORTH);
-        mainPanel.add(Fpanel, BorderLayout.SOUTH);
         mainPanel.add(Lpanel, BorderLayout.WEST);
         mainPanel.add(Rpanel, BorderLayout.EAST);
+        mainPanel.add(Fpanel, BorderLayout.SOUTH);
 
         this.add(mainPanel, BorderLayout.EAST);
+    }
 
-        Lpanel.setLayout(new GridLayout(9, 2, 5, 5));
-        Rpanel.setLayout(new GridLayout(9, 2, 5, 5));
-
-        for (int i = 0; i < kursi.length; i++) {
-            JButton btn = new JButton();
-            btn.setIcon(seatIcon);
-            btn.setHorizontalTextPosition(SwingConstants.CENTER);
-            btn.setPreferredSize(new Dimension(45, 45));
-            btn.setBorder(BorderFactory.createEmptyBorder());
-            btn.setFocusPainted(false);
-            btn.setContentAreaFilled(false);
-            btn.setBorderPainted(true);
-            btn.setFont(new Font("Roboto", Font.BOLD, 9));
-
-            kursi[i] = btn;
-            btn.addActionListener(e -> {
-                if (btn.getIcon().equals(seatIcon)) {
-                    btn.setIcon(takenIcon);
-                } else {
-                    btn.setIcon(seatIcon);
-                }
-            });
-
-            if (i < 18) {
-                btn.setText((i + 1) + "A");
-                Lpanel.add(btn);
+    private JButton SeatButton(String seatNum){
+        JButton seatButton = new JButton(seatNum);
+        seatButton.setIcon(seatIcon);
+        seatButton.setFont(new Font("Arial", Font.BOLD, 11));
+        seatButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        seatButton.setVerticalTextPosition(SwingConstants.CENTER);
+        seatButton.setContentAreaFilled(false);
+        seatButton.setBorderPainted(false);
+        seatButton.setFocusPainted(false);
+        seatButton.addActionListener(e -> {
+            if (seatButton.getIcon() == seatIcon) {
+                seatButton.setIcon(chosenIcon);
             } else {
-                btn.setText((i + 1) + "B");
-                Rpanel.add(btn);
+                seatButton.setIcon(seatIcon);
             }
-        }
+        });
+        return seatButton;
     }
 }
