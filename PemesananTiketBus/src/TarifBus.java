@@ -1,9 +1,32 @@
 
 
+
+
 public class TarifBus extends Trayek {
-    public  TarifBus(){
+    private String lokasiNaik;
+    private String lokasiTurun;
+    private Seat kursi;
+
+    public  TarifBus(String lokasiNaik, String lokasiTurun) {
+        this.lokasiNaik = lokasiNaik;
+        this.lokasiTurun = lokasiTurun;
+        this.kursi = new Seat();
         inisialisasiTarif();
     }
+
+    public String getLokasiNaik() {
+        return lokasiNaik;
+    }
+    public String getLokasiTurun() {
+        return lokasiTurun;
+    }
+    public int getHarga() {
+        return getTarif(lokasiNaik, lokasiTurun);
+    }
+    public Seat getSeat() {
+        return kursi;
+    }
+
 
     private void inisialisasiTarif() {
         tambahTarif("Wilangan", "Ngawi", 35000);

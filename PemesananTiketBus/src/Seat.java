@@ -10,12 +10,12 @@ public class Seat {
     }
 
     public boolean isKosong(String kursi) {
-        return statusKursi.getOrDefault(kursi, false) == false;
+        return statusKursi.getOrDefault(kursi, true);
     }
 
     public boolean pesanKursi(String kursi) {
         if (isKosong(kursi)) {
-            statusKursi.put(kursi, true);
+            statusKursi.put(kursi, false);
             return true;
         }
         return false;

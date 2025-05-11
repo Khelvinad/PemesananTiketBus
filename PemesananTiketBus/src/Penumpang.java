@@ -9,5 +9,8 @@ public class Penumpang {
         this.NoTelp = NoTelp;
     }
 
+    public String getNama() {return nama;}
+    public String getNIK() {return NIK;}
+    public String getNoHp() {return NoTelp;}
 
 }

@@ -22,6 +22,10 @@ public class Frame extends JFrame {
         this.setVisible(true);
     }
 
+    private void UIuser(){
+
+    }
+
     private void loadIcon(){
         ImageIcon rawIcon = new ImageIcon(getClass().getResource("Resource/Seat.png"));
         Image scaledImage = rawIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
