@@ -141,16 +141,28 @@ public class Frame extends JFrame {
                                     textFields.get(1).getText(), 
                                     textFields.get(2).getText());
 
-            // Dapatkan kursi yang dipilih
             String noKursi = seat.getKursiTerpilih().stream().iterator().next();
             tiket = new Tiket(penumpang, noKursi, tarifBus);
             try (FileWriter fw = new FileWriter("data_tiket.txt", true)) {
                 fw.write(tiket.toDataString() + "\n");
+                JOptionPane.showMessageDialog(null, "Tiket berhasil dipesan");
+                for (JTextField field : textFields) {
+                    field.setText("");
+                }
+                
+                asal.setSelectedIndex(0);
+                tujuan.setSelectedIndex(0);
+                
+                seat.resetKursiTerpilih();
+                updateSeatIcons();
+                
+                penumpang = null;
+                tarifBus = null;
+                tiket = null;
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
             
-            // Update tampilan kursi setelah pemesanan
             updateSeatIcons();
             seat.resetKursiTerpilih();
         });
@@ -266,7 +278,6 @@ public class Frame extends JFrame {
         seatButton.setBorderPainted(false);
         seatButton.setFocusPainted(false);
 
-        // Set icon awal berdasarkan status
         updateButtonIcon(seatButton, seatNum);
 
         seatButton.addActionListener(e -> {
