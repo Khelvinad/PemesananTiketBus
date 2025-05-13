@@ -293,7 +293,6 @@ public class Frame extends JFrame {
         if (Tiket.isKursiTerpesan(seatNum, asalStr, tujuanStr)) {
             button.setIcon(takenIcon);
             button.setDisabledIcon(takenIcon);
-            button.setEnabled(false);
             for (ActionListener al : button.getActionListeners()) {
                 button.removeActionListener(al);
             }
