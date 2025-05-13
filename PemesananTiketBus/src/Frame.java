@@ -145,7 +145,27 @@ public class Frame extends JFrame {
             tiket = new Tiket(penumpang, noKursi, tarifBus);
             try (FileWriter fw = new FileWriter("data_tiket.txt", true)) {
                 fw.write(tiket.toDataString() + "\n");
-                JOptionPane.showMessageDialog(null, "Tiket berhasil dipesan");
+
+                Object[][] data = {
+                    {"Nama Penumpang", penumpang.getNama()},
+                    {"Nomor Kursi", noKursi},
+                    {"Rute", asalDipilih + " → " + tujuanDipilih},
+                    {"Harga", "Rp" + String.format("%,d", tarifBus.getHarga())}
+                };
+
+                String[] columns = {"Keterangan", "Detail"};
+
+                JTable table = new JTable(data, columns);
+                table.setFont(new Font("Arial", Font.PLAIN, 11));
+                table.setRowHeight(25);
+                table.getColumnModel().getColumn(0).setPreferredWidth(120);
+                table.getColumnModel().getColumn(1).setPreferredWidth(180);
+                table.setEnabled(false);
+
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                panel.add(new JScrollPane(table), BorderLayout.CENTER);
+                JOptionPane.showMessageDialog(null, panel, "Pemesanan Berhasil", JOptionPane.PLAIN_MESSAGE);
                 for (JTextField field : textFields) {
                     field.setText("");
                 }
@@ -165,6 +185,7 @@ public class Frame extends JFrame {
             
             updateSeatIcons();
             seat.resetKursiTerpilih();
+
         });
 
         this.add(mainPanel, BorderLayout.WEST);

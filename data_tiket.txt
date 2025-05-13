@@ -1,6 +1,8 @@
 John Doe,123456789012,081234567890,A1,Wilangan,Ngawi,35000
 Jane Smith,987654321098,081298765432,B3,Ngawi,Solo,30000
-Budi Santoso,456123789045,085678912345,A5,Solo,Jogja,15000khel,31313,13131,A2,Ngawi,Solo,30000
 khel,1313,3131,A6,Wilangan,Ngawi,35000
 khel,1313,1313,A4,Wilangan,Kartosuro,60000
 jawa,42424,553,B22,Wilangan,Gendingan,45000
+jawa,536365,141,A6,Solo,Kartosuro,15000
+wfsfe,4242,4242,A10,Wilangan,Solo,55000
+gss,5522,52525,A2,Magelang,Wilangan,85000
