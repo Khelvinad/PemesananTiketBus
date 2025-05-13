@@ -1,29 +1,162 @@
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
 
 public class Frame extends JFrame {
 
     private JButton[] seatA = new JButton[18];
     private JButton[] seatB = new JButton[22];
-    private JButton driver, conductor, toilet;
-    private ImageIcon seatIcon;
-    private ImageIcon chosenIcon;
-    private ImageIcon takenIcon;
+    private Seat seat;
+    private Map<String, JButton> tombolKursi = new HashMap<>();
+    private JButton driver, conductor;
+    private ImageIcon seatIcon, chosenIcon, takenIcon;
+    private Penumpang penumpang;
+    private TarifBus tarifBus;
+    private Tiket tiket;
+    private JComboBox<String> asal;
+    private JComboBox<String> tujuan;
+
 
     public Frame() {
         this.setTitle("Pemesanan Tiket Bus codEXpress");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(800, 650);
         this.setLayout(new BorderLayout());
+        this.seat = new Seat();
 
         loadIcon();
+        UIuser();
         UIbus();
-
         this.setVisible(true);
     }
 
     private void UIuser(){
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setPreferredSize(new Dimension(400, 650));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        JPanel userPanel = new JPanel(new GridBagLayout());
+        Dimension maxSize = new Dimension(300, 400);
+        userPanel.setPreferredSize(maxSize);
+        userPanel.setMaximumSize(maxSize);
+        userPanel.setMinimumSize(maxSize);
+        userPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        GridBagConstraints gbc = new GridBagConstraints();
+        userPanel.setBackground(Color.decode("#4E71FF"));
+
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        String[] labels = {"Nama", "NIK", "No.Telp"};
+        ArrayList<JTextField> textFields = new ArrayList<>();
+
+        for (int i = 0; i < labels.length; i++) {
+            gbc.gridx = 0;
+            gbc.gridy = i;
+            JLabel label = new JLabel(labels[i]);
+            label.setForeground(Color.WHITE);
+            userPanel.add(label, gbc);
+
+            gbc.gridx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.weightx = 1.0;
+            JTextField field = new JTextField(15);
+
+            if (i == 1 || i == 2) {
+                field.addKeyListener(new KeyAdapter() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                        char c = e.getKeyChar();
+                        if (!Character.isDigit(c)) {
+                            e.consume();
+                    }
+                }
+            });
+        }
+            textFields.add(field);
+            userPanel.add(field, gbc);
+        }
+
+        String[] Trayek = {"Wilangan", "Ngawi", "Gendingan", "Solo", "Kartosuro", "Jogja", "Magelang"};
+        gbc.gridx = 0;
+        gbc.gridy = labels.length;
+        JLabel asalLabel = new JLabel("Asal");
+        asalLabel.setForeground(Color.WHITE);
+        userPanel.add(asalLabel, gbc);
+        gbc.gridx = 1;
+        asal = new JComboBox<>(Trayek);
+        userPanel.add(asal, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = labels.length + 1;
+        JLabel tujuanLabel = new JLabel("Tujuan");
+        tujuanLabel.setForeground(Color.WHITE);
+        userPanel.add(tujuanLabel, gbc);
+        gbc.gridx = 1;
+        tujuan = new JComboBox<>(Trayek);
+        userPanel.add(tujuan, gbc);
+
+        asal.addActionListener(e -> updateSeatIcons());
+        tujuan.addActionListener(e -> updateSeatIcons());
+
+
+        JButton submitButton = new JButton("Submit");
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        userPanel.add(submitButton, gbc);
+
+        asal.addActionListener(e -> {
+            String selectedAsal = (String) asal.getSelectedItem();
+            tujuan.removeAllItems();
+            for (String t : Trayek) {
+                if (!t.equals(selectedAsal)) {
+                    tujuan.addItem(t);
+                }
+            }
+            updateSeatIcons();
+        });
+
+        tujuan.addActionListener(e -> updateSeatIcons());
+
+        submitButton.addActionListener(e -> {
+            String asalDipilih = (String) asal.getSelectedItem();
+            String tujuanDipilih = (String) tujuan.getSelectedItem();
+
+            if (asalDipilih.equals(tujuanDipilih)) {
+                JOptionPane.showMessageDialog(null, "Asal dan tujuan tidak boleh sama");
+                return;
+            }
+
+            tarifBus = new TarifBus(asalDipilih, tujuanDipilih);
+            tarifBus.setSeat(seat);
+            penumpang = new Penumpang(textFields.get(0).getText(), 
+                                    textFields.get(1).getText(), 
+                                    textFields.get(2).getText());
+
+            // Dapatkan kursi yang dipilih
+            String noKursi = seat.getKursiTerpilih().stream().iterator().next();
+            tiket = new Tiket(penumpang, noKursi, tarifBus);
+            try (FileWriter fw = new FileWriter("data_tiket.txt", true)) {
+                fw.write(tiket.toDataString() + "\n");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            
+            // Update tampilan kursi setelah pemesanan
+            updateSeatIcons();
+            seat.resetKursiTerpilih();
+        });
+
+        this.add(mainPanel, BorderLayout.WEST);
+        mainPanel.add(userPanel);
     }
 
     private void loadIcon(){
@@ -77,12 +210,14 @@ public class Frame extends JFrame {
         Lpanel.setPreferredSize(new Dimension(115, 500));
         for (int i = 1; i <= 18; i++) {
             seatA[i-1] = SeatButton("A" + i);
+            tombolKursi.put("A" + i, seatA[i-1]);
             Lpanel.add(seatA[i-1]);
         }
         JPanel Rpanel = new JPanel(new GridLayout(9, 2, 5, 5));
         Rpanel.setPreferredSize(new Dimension(115, 500));
         for (int i = 1; i <= 18; i++) {
             seatB[i-1] = SeatButton("B" + i);
+            tombolKursi.put("B" + i, seatB[i-1]);
             Rpanel.add(seatB[i-1]);
         }
 
@@ -103,6 +238,7 @@ public class Frame extends JFrame {
         bottomRoghtPanel.setPreferredSize(new Dimension(115, 80));
         for (int i = 19; i <= seatB.length; i++) {
             seatB[i-1] = SeatButton("B" + i);
+            tombolKursi.put("B" + i, seatB[i-1]);
             bottomRoghtPanel.add(seatB[i-1]);
         }
 
@@ -121,22 +257,66 @@ public class Frame extends JFrame {
         this.add(mainPanel, BorderLayout.EAST);
     }
 
-    private JButton SeatButton(String seatNum){
+    private JButton SeatButton(String seatNum) {
         JButton seatButton = new JButton(seatNum);
-        seatButton.setIcon(seatIcon);
         seatButton.setFont(new Font("Arial", Font.BOLD, 11));
         seatButton.setHorizontalTextPosition(SwingConstants.CENTER);
         seatButton.setVerticalTextPosition(SwingConstants.CENTER);
         seatButton.setContentAreaFilled(false);
         seatButton.setBorderPainted(false);
         seatButton.setFocusPainted(false);
+
+        // Set icon awal berdasarkan status
+        updateButtonIcon(seatButton, seatNum);
+
         seatButton.addActionListener(e -> {
             if (seatButton.getIcon() == seatIcon) {
+                seat.pesanKursi(seatNum);
                 seatButton.setIcon(chosenIcon);
-            } else {
+            } else if (seatButton.getIcon() == chosenIcon) {
+                seat.kosongkanKursi(seatNum);
                 seatButton.setIcon(seatIcon);
             }
         });
         return seatButton;
     }
+
+    private void updateButtonIcon(JButton button, String seatNum) {
+        if (asal.getSelectedItem() == null || tujuan.getSelectedItem() == null) {
+            button.setIcon(seatIcon);
+            return;
+        }
+
+        String asalStr = asal.getSelectedItem().toString();
+        String tujuanStr = tujuan.getSelectedItem().toString();
+
+        if (Tiket.isKursiTerpesan(seatNum, asalStr, tujuanStr)) {
+            button.setIcon(takenIcon);
+            button.setDisabledIcon(takenIcon);
+            button.setEnabled(false);
+            for (ActionListener al : button.getActionListeners()) {
+                button.removeActionListener(al);
+            }
+        } else if (seat.getKursiTerpilih().contains(seatNum)) {
+            button.setIcon(chosenIcon);
+        } else {
+            button.setIcon(seatIcon);
+        }
+    }
+
+    private void updateSeatIcons() {
+    if (asal.getSelectedItem() == null || tujuan.getSelectedItem() == null) {
+        return;
+    }
+
+    String asalStr = asal.getSelectedItem().toString();
+    String tujuanStr = tujuan.getSelectedItem().toString();
+
+    if (asalStr.equals(tujuanStr)) {
+        return;
+    }
+    for (Map.Entry<String, JButton> entry : tombolKursi.entrySet()) {
+        updateButtonIcon(entry.getValue(), entry.getKey());
+    }
+}
 }

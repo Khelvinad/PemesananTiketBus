@@ -10,8 +10,11 @@ public class TarifBus extends Trayek {
     public  TarifBus(String lokasiNaik, String lokasiTurun) {
         this.lokasiNaik = lokasiNaik;
         this.lokasiTurun = lokasiTurun;
-        this.kursi = new Seat();
         inisialisasiTarif();
+    }
+
+    public void setSeat(Seat kursi) {
+        this.kursi = kursi;
     }
 
     public String getLokasiNaik() {
