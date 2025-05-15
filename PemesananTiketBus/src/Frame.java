@@ -1,6 +1,4 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.FileWriter;
@@ -9,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 
 public class Frame extends JFrame {
@@ -196,17 +193,17 @@ public class Frame extends JFrame {
             frameCari.setLocationRelativeTo(null);
             frameCari.setLayout(new BorderLayout());
 
+            
+
             JPanel panelInput = new JPanel();
             JTextField tfNama = new JTextField(20);
-            JTextField tfAsal = new JTextField(10);
-            JTextField tfTujuan = new JTextField(10);
             JButton btnCari = new JButton("Cari");
             panelInput.add(new JLabel("Nama Penumpang:"));
             panelInput.add(tfNama);
             panelInput.add(new JLabel("Asal:"));
-            panelInput.add(tfAsal);
+            panelInput.add(asal);
             panelInput.add(new JLabel("Tujuan:"));
-            panelInput.add(tfTujuan);
+            panelInput.add(tujuan);
             panelInput.add(btnCari);
             JButton btnKembali = new JButton("Kembali");
             panelInput.add(btnKembali);
@@ -221,12 +218,12 @@ public class Frame extends JFrame {
 
             btnCari.addActionListener(ev -> {
                 String nama = tfNama.getText().trim();
-                String asal = tfAsal.getText().trim();
-                String tujuan = tfTujuan.getText().trim();
+                String asalstr = (String) asal.getSelectedItem();
+                String tujuanstr = (String) tujuan.getSelectedItem();
                 model.setRowCount(0);
                 for (Tiket t : semuaTiket) {
-                    if (t.getPenumpang().getNama().equalsIgnoreCase(nama) && t.getTrayek().getLokasiNaik().equalsIgnoreCase(asal) &&
-                        t.getTrayek().getLokasiTurun().equalsIgnoreCase(tujuan)) {
+                    if (t.getPenumpang().getNama().equalsIgnoreCase(nama) && t.getTrayek().getLokasiNaik().equalsIgnoreCase(asalstr) &&
+                        t.getTrayek().getLokasiTurun().equalsIgnoreCase(tujuanstr)) {
                         model.addRow(new Object[]{
                             t.getPenumpang().getNama(),
                             t.getPenumpang().getNIK(),
@@ -234,7 +231,7 @@ public class Frame extends JFrame {
                             t.getNoKursi(),
                             t.getTrayek().getLokasiNaik(),
                             t.getTrayek().getLokasiTurun(),
-                            t.getTrayek().getHarga()
+                            "Rp. " + t.getTrayek().getHarga()
                         });
                     }
                 }
@@ -365,7 +362,19 @@ public class Frame extends JFrame {
         updateButtonIcon(seatButton, seatNum);
 
         seatButton.addActionListener(e -> {
+            if (seatButton.getIcon() == takenIcon) return;
             if (seatButton.getIcon() == seatIcon) {
+                seat.kosongkanKursi(seatNum);
+                for (int i = 0; i < seatA.length; i++) {
+                    if (seatA[i] != null && seatA[i].getIcon() != takenIcon) {
+                        seatA[i].setIcon(seatIcon);
+                    }
+                }
+                for (int i = 0; i < seatB.length; i++) {
+                    if (seatB[i] != null && seatB[i].getIcon() != takenIcon) {
+                        seatB[i].setIcon(seatIcon);
+                    }
+                }
                 seat.pesanKursi(seatNum);
                 seatButton.setIcon(chosenIcon);
             } else if (seatButton.getIcon() == chosenIcon) {

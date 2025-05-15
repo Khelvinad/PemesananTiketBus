@@ -10,3 +10,6 @@ damis,2133131,13131,B16,Wilangan,Solo,55000
 Dimas,12345,0892145123,B20,Ngawi,Jogja,45000
 nj,67,8,A11,Ngawi,Wilangan,35000
 jawa,123,123,A4,Wilangan,Gendingan,45000
+Jawa,39493,23929,A11,Solo,Kartosuro,15000
+jwa,8381,8381,A10,Ngawi,Kartosuro,40000
+dadada,313112111,1111,B20,Wilangan,Solo,55000
