@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -8,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.table.DefaultTableModel;
 
 public class Frame extends JFrame {
 
@@ -38,9 +41,12 @@ public class Frame extends JFrame {
     }
 
     private void UIuser(){
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setPreferredSize(new Dimension(400, 650));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JButton btnlistTiket = new JButton("List Tiket");
+        btnlistTiket.setPreferredSize(new Dimension(150, 30));
 
         JPanel userPanel = new JPanel(new GridBagLayout());
         Dimension maxSize = new Dimension(300, 400);
@@ -113,6 +119,7 @@ public class Frame extends JFrame {
         gbc.fill = GridBagConstraints.NONE;
         userPanel.add(submitButton, gbc);
 
+
         asal.addActionListener(e -> {
             String selectedAsal = (String) asal.getSelectedItem();
             tujuan.removeAllItems();
@@ -129,11 +136,6 @@ public class Frame extends JFrame {
         submitButton.addActionListener(e -> {
             String asalDipilih = (String) asal.getSelectedItem();
             String tujuanDipilih = (String) tujuan.getSelectedItem();
-
-            if (asalDipilih.equals(tujuanDipilih)) {
-                JOptionPane.showMessageDialog(null, "Asal dan tujuan tidak boleh sama");
-                return;
-            }
 
             tarifBus = new TarifBus(asalDipilih, tujuanDipilih);
             tarifBus.setSeat(seat);
@@ -185,11 +187,72 @@ public class Frame extends JFrame {
             
             updateSeatIcons();
             seat.resetKursiTerpilih();
-
         });
 
+        btnlistTiket.addActionListener(e -> {
+            this.dispose();
+            JFrame frameCari = new JFrame("Cari Tiket");
+            frameCari.setSize(800, 300);
+            frameCari.setLocationRelativeTo(null);
+            frameCari.setLayout(new BorderLayout());
+
+            JPanel panelInput = new JPanel();
+            JTextField tfNama = new JTextField(20);
+            JTextField tfAsal = new JTextField(10);
+            JTextField tfTujuan = new JTextField(10);
+            JButton btnCari = new JButton("Cari");
+            panelInput.add(new JLabel("Nama Penumpang:"));
+            panelInput.add(tfNama);
+            panelInput.add(new JLabel("Asal:"));
+            panelInput.add(tfAsal);
+            panelInput.add(new JLabel("Tujuan:"));
+            panelInput.add(tfTujuan);
+            panelInput.add(btnCari);
+            JButton btnKembali = new JButton("Kembali");
+            panelInput.add(btnKembali);
+            frameCari.add(panelInput, BorderLayout.NORTH);
+
+            String[] kolom = {"Nama", "NIK", "No HP", "No Kursi", "Asal", "Tujuan", "Harga"};
+            DefaultTableModel model = new DefaultTableModel(kolom, 0);
+            JTable table = new JTable(model);
+            frameCari.add(new JScrollPane(table), BorderLayout.CENTER);
+
+            ArrayList<Tiket> semuaTiket = new Tiket().bacaDariFile();
+
+            btnCari.addActionListener(ev -> {
+                String nama = tfNama.getText().trim();
+                String asal = tfAsal.getText().trim();
+                String tujuan = tfTujuan.getText().trim();
+                model.setRowCount(0);
+                for (Tiket t : semuaTiket) {
+                    if (t.getPenumpang().getNama().equalsIgnoreCase(nama) && t.getTrayek().getLokasiNaik().equalsIgnoreCase(asal) &&
+                        t.getTrayek().getLokasiTurun().equalsIgnoreCase(tujuan)) {
+                        model.addRow(new Object[]{
+                            t.getPenumpang().getNama(),
+                            t.getPenumpang().getNIK(),
+                            t.getPenumpang().getNoHp(),
+                            t.getNoKursi(),
+                            t.getTrayek().getLokasiNaik(),
+                            t.getTrayek().getLokasiTurun(),
+                            t.getTrayek().getHarga()
+                        });
+                    }
+                }
+            });
+
+            btnKembali.addActionListener(ev -> {
+                frameCari.dispose();
+                new Frame();
+            });
+
+            frameCari.setVisible(true);
+        });
+
+
+
         this.add(mainPanel, BorderLayout.WEST);
-        mainPanel.add(userPanel);
+        mainPanel.add(userPanel, BorderLayout.CENTER);
+        mainPanel.add(btnlistTiket, BorderLayout.SOUTH);
     }
 
     private void loadIcon(){
@@ -322,32 +385,33 @@ public class Frame extends JFrame {
         String asalStr = asal.getSelectedItem().toString();
         String tujuanStr = tujuan.getSelectedItem().toString();
 
-        if (Tiket.isKursiTerpesan(seatNum, asalStr, tujuanStr)) {
+        ArrayList<Tiket> semuaTiket = new Tiket().bacaDariFile();
+
+        boolean sudahDipesan = false;
+        for (Tiket t : semuaTiket) {
+            if (t.getTrayek().getLokasiNaik().equalsIgnoreCase(asalStr) &&
+                t.getTrayek().getLokasiTurun().equalsIgnoreCase(tujuanStr) &&
+                t.getNoKursi().equalsIgnoreCase(seatNum)) {
+                sudahDipesan = true;
+                break;
+            }
+        }
+
+        if (sudahDipesan) {
             button.setIcon(takenIcon);
             button.setDisabledIcon(takenIcon);
-            for (ActionListener al : button.getActionListeners()) {
-                button.removeActionListener(al);
-            }
-        } else if (seat.getKursiTerpilih().contains(seatNum)) {
-            button.setIcon(chosenIcon);
+            button.setEnabled(false);
         } else {
             button.setIcon(seatIcon);
+            button.setEnabled(true);
         }
     }
 
     private void updateSeatIcons() {
-    if (asal.getSelectedItem() == null || tujuan.getSelectedItem() == null) {
-        return;
+        for (Map.Entry<String, JButton> entry : tombolKursi.entrySet()) {
+            String seatNum = entry.getKey();
+            JButton button = entry.getValue();
+            updateButtonIcon(button, seatNum);
+        }
     }
-
-    String asalStr = asal.getSelectedItem().toString();
-    String tujuanStr = tujuan.getSelectedItem().toString();
-
-    if (asalStr.equals(tujuanStr)) {
-        return;
-    }
-    for (Map.Entry<String, JButton> entry : tombolKursi.entrySet()) {
-        updateButtonIcon(entry.getValue(), entry.getKey());
-    }
-}
 }

@@ -12,6 +12,9 @@ public class Tiket {
     private String noKursi;
     private TarifBus trayek;
 
+    public Tiket() {
+    }
+
     public Tiket(Penumpang penumpang, String noKursi, TarifBus trayek) {
         this.penumpang = penumpang;
         this.noKursi = noKursi;
@@ -47,8 +50,8 @@ public class Tiket {
         }
     }
 
-    public List<Tiket> bacaDariFile() {
-        List<Tiket> list = new ArrayList<>();
+    public ArrayList<Tiket> bacaDariFile() {
+        ArrayList<Tiket> list = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("data_tiket.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
