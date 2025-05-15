@@ -363,18 +363,18 @@ public class Frame extends JFrame {
 
         seatButton.addActionListener(e -> {
             if (seatButton.getIcon() == takenIcon) return;
+            
             if (seatButton.getIcon() == seatIcon) {
-                seat.kosongkanKursi(seatNum);
-                for (int i = 0; i < seatA.length; i++) {
-                    if (seatA[i] != null && seatA[i].getIcon() != takenIcon) {
-                        seatA[i].setIcon(seatIcon);
+                String kursiTerpilih = seat.getKursiTerpilih().stream().findFirst().orElse(null);
+                
+                if (kursiTerpilih != null) {
+                    JButton buttonTerpilih = tombolKursi.get(kursiTerpilih);
+                    if (buttonTerpilih != null) {
+                        buttonTerpilih.setIcon(seatIcon);
+                        seat.kosongkanKursi(kursiTerpilih);
                     }
                 }
-                for (int i = 0; i < seatB.length; i++) {
-                    if (seatB[i] != null && seatB[i].getIcon() != takenIcon) {
-                        seatB[i].setIcon(seatIcon);
-                    }
-                }
+                
                 seat.pesanKursi(seatNum);
                 seatButton.setIcon(chosenIcon);
             } else if (seatButton.getIcon() == chosenIcon) {

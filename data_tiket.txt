@@ -13,3 +13,7 @@ jawa,123,123,A4,Wilangan,Gendingan,45000
 Jawa,39493,23929,A11,Solo,Kartosuro,15000
 jwa,8381,8381,A10,Ngawi,Kartosuro,40000
 dadada,313112111,1111,B20,Wilangan,Solo,55000
+khd,12345678,123456789,A10,Wilangan,Gendingan,45000
+qwert,34567,2345678,A11,Wilangan,Ngawi,35000
+fghj,2345,3456,A10,Wilangan,Ngawi,35000
+dfgh,23456,6789,B7,Wilangan,Ngawi,35000
